@@ -1,0 +1,96 @@
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix void:     <http://rdfs.org/ns/void#> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix org:      <http://www.w3.org/ns/org#> .
+@prefix admingeo: <http://data.ordnancesurvey.co.uk/ontology/admingeo/> .
+@prefix interval: <http://reference.data.gov.uk/def/intervals/> .
+
+@prefix qb:       <http://purl.org/linked-data/cube#> .
+
+@prefix sdmx-concept:    <http://purl.org/linked-data/sdmx/2009/concept#> .
+@prefix sdmx-dimension:  <http://purl.org/linked-data/sdmx/2009/dimension#> .
+@prefix sdmx-attribute:  <http://purl.org/linked-data/sdmx/2009/attribute#> .
+@prefix sdmx-measure:    <http://purl.org/linked-data/sdmx/2009/measure#> .
+@prefix sdmx-metadata:   <http://purl.org/linked-data/sdmx/2009/metadata#> .
+@prefix sdmx-code:       <http://purl.org/linked-data/sdmx/2009/code#> .
+@prefix sdmx-subject:    <http://purl.org/linked-data/sdmx/2009/subject#> .
+
+@prefix dbp:     <http://dbpedia.org/ontology/> .
+@prefix op:      <http://opendata.cs.pub.ro/ontology> .
+@prefix eg-rc:   <http://opendata.cs.pub.ro/resource/registredCars/> .
+
+# -- Data Set --------------------------------------------
+
+eg-rc:dataset a qb:DataSet;
+    dct:title       "Registred cars"@en;
+    rdfs:label      "Registred cars"@en;
+    rdfs:comment    "Number of Registred cars in Romania"@en;
+    dct:description "Number of Registred cars in Romania"@en;
+    dct:publisher   eg-rc:organization ;
+    dct:issued      "2016-06-21"^^xsd:date;
+    qb:structure    eg-rc:dsd ;  
+    sdmx-attribute:unitMeasure <http://dbpedia.org/resource/Year> ;
+    .
+
+eg-rc:organization a org:Organization, foaf:Agent;
+    rdfs:label "Opendata laboratory"@en .    
+        
+# -- Data structure definition ----------------------------
+
+eg-rc:dsd a qb:DataStructureDefinition;
+    qb:component 
+    # The dimensions
+        [ qb:dimension eg-rc:dimRegion;       qb:order 1 ],
+        [ qb:dimension eg-rc:dimPeriod;       qb:order 2;],
+        [ qb:dimension eg-rc:dimCarType;      qb:order 3;],
+		[ qb:dimension eg-rc:dimCarCateg;     qb:order 4;];
+        
+    # The measure(s)
+    qb:component [ qb:measure eg-rc:numberRegistredCars];
+    
+    # The attributes
+    qb:component [ qb:attribute sdmx-attribute:unitMeasure; 
+                   qb:componentRequired "true"^^xsd:boolean;
+                   qb:componentAttachment qb:DataSet; ] ;
+    .
+
+                   
+# -- Dimensions and measures  ----------------------------
+
+eg-rc:dimPeriod  a rdf:Property, qb:DimensionProperty;
+    rdfs:label "reference period"@en;
+    rdfs:subPropertyOf sdmx-dimension:refPeriod;
+    rdfs:range interval:Interval;
+    qb:concept sdmx-concept:refPeriod ;
+    .
+
+
+eg-rc:dimRegion  a rdf:Property, qb:DimensionProperty;
+    rdfs:label "reference area"@en;
+    rdfs:subPropertyOf sdmx-dimension:refArea;
+    rdfs:range admingeo:UnitaryAuthority;
+    qb:concept sdmx-concept:refArea ;
+    .
+
+eg-rc:dimCarType  a rdf:Property, qb:DimensionProperty;
+    rdfs:label "reference car type"@en;
+    rdfs:range dbp:MeanOfTransportation;
+    qb:concept sdmx-concept:classSystem  ;
+    .
+
+eg-rc:dimCarCateg  a rdf:Property, qb:DimensionProperty;
+    rdfs:label "reference car category"@en;
+    rdfs:range op:CarCategory;
+    qb:concept sdmx-concept:classSystem ;
+    .
+
+eg-rc:numberRegistredCars  a rdf:Property, qb:MeasureProperty;
+    rdfs:label "number of registred cars"@en;
+    rdfs:subPropertyOf sdmx-measure:obsValue;
+    rdfs:range xsd:decimal ;
+    .
